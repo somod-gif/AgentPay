@@ -1,0 +1,18 @@
+{
+  "default_branch": "master",
+  "branches": [
+    "hackathon-demo",
+    "master",
+    "origin"
+  ],
+  "parent": {
+    "hackathon-demo": "master",
+    "master": null,
+    "origin": "master"
+  },
+  "order": [
+    "master",
+    "hackathon-demo",
+    "origin"
+  ]
+}
