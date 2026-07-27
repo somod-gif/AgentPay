@@ -6,11 +6,16 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
+} from "@/components/ui/card"
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select"
 import { Wallet, Loader2, CheckCircle2 } from "lucide-react"
 import { api } from "@/lib/api"
 import { useAuth } from "@/lib/auth-context"
-import type { User } from "@/types"
+import type { User, UserRole } from "@/types"
 
 export function RegisterPage() {
   const router = useRouter()
@@ -18,6 +23,7 @@ export function RegisterPage() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [role, setRole] = useState<UserRole>("STAFF")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -26,12 +32,7 @@ export function RegisterPage() {
     setError("")
     setLoading(true)
     try {
-      await api.post<User>("/auth/register", {
-        email,
-        name,
-        password,
-        role: "STAFF",
-      })
+      await api.post<User>("/auth/register", { email, name, password, role })
       await login(email, password)
       router.push("/dashboard")
     } catch (err) {
@@ -63,38 +64,40 @@ export function RegisterPage() {
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
               <Input
-                id="name"
-                type="text"
-                placeholder="Tolu Adeyemi"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                autoFocus
+                id="name" type="text" placeholder="Tolu Adeyemi"
+                value={name} onChange={(e) => setName(e.target.value)}
+                required autoFocus
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="you@company.ng"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="email" type="email" placeholder="you@company.ng"
+                value={email} onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
-                id="password"
-                type="password"
-                placeholder="Create a password (min. 8 characters)"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                minLength={8}
-                required
+                id="password" type="password" placeholder="Create a password (min. 8 characters)"
+                value={password} onChange={(e) => setPassword(e.target.value)}
+                minLength={8} required
               />
               <p className="text-xs text-gray-400">At least 8 characters</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="role">Role</Label>
+              <Select value={role} onValueChange={(v) => setRole(v as UserRole)}>
+                <SelectTrigger id="role">
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="STAFF">Staff — Initiate payments</SelectItem>
+                  <SelectItem value="MANAGER">Manager — Approve payments</SelectItem>
+                  <SelectItem value="ADMIN">Admin — Full access</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {error && (
@@ -105,10 +108,7 @@ export function RegisterPage() {
 
             <Button type="submit" className="w-full" size="lg" disabled={loading}>
               {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating account...
-                </>
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating account...</>
               ) : (
                 "Create Account"
               )}
@@ -124,9 +124,7 @@ export function RegisterPage() {
         <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-500">
             Already have an account?{" "}
-            <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-              Sign in
-            </Link>
+            <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">Sign in</Link>
           </p>
         </CardFooter>
       </Card>
